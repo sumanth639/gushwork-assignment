@@ -219,6 +219,25 @@ function initHeroCarouselAndZoom() {
   setActiveImage(activeIndex);
 }
 
+function lockPageForModal() {
+  const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+  const currentPadding = window.getComputedStyle(document.body).paddingRight;
+  const currentPaddingValue = parseFloat(currentPadding) || 0;
+
+  document.body.dataset.modalPrevPaddingRight = currentPadding;
+  document.body.classList.add("is-modal-open");
+
+  if (scrollbarWidth > 0) {
+    document.body.style.paddingRight = `${currentPaddingValue + scrollbarWidth}px`;
+  }
+}
+
+function unlockPageForModal() {
+  document.body.classList.remove("is-modal-open");
+  document.body.style.paddingRight = document.body.dataset.modalPrevPaddingRight || "";
+  delete document.body.dataset.modalPrevPaddingRight;
+}
+
 // modal open / close
 function initModal(modalId, openSelector, closeSelector, formSelector, focusSelector) {
   const modal = document.getElementById(modalId);
@@ -241,7 +260,7 @@ function initModal(modalId, openSelector, closeSelector, formSelector, focusSele
     lastFocusedElement = document.activeElement;
     modal.classList.add("is-open");
     modal.setAttribute("aria-hidden", "false");
-    document.body.classList.add("is-modal-open");
+    lockPageForModal();
 
     if (focusField) {
       focusField.focus();
@@ -251,7 +270,7 @@ function initModal(modalId, openSelector, closeSelector, formSelector, focusSele
   function closeModal() {
     modal.classList.remove("is-open");
     modal.setAttribute("aria-hidden", "true");
-    document.body.classList.remove("is-modal-open");
+    unlockPageForModal();
 
     if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
       lastFocusedElement.focus();
